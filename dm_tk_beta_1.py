@@ -112,7 +112,7 @@ class DrumMachine:
     globalid  = 1
     # is incremented everytime a unique pattern is pushed and therefore saved in unique
     cutid     = 1
-    # If a new unique cut is made store it in unique and then set newcut to 0
+    # If a new unique cut is made store it in unique and then set newcut to False
     # starts at True because first cut is always unique
     newcut    = True
     # temp for patterns being edited
@@ -124,6 +124,8 @@ class DrumMachine:
     overwrite = True
     # push copy
     pushc     = False
+    # can copy
+    cancopy   = False
     
     def __init__(self):
         self.tempo = 120 # default
@@ -246,16 +248,19 @@ class DrumMachine:
         pygame.mixer.music.play()
         # stores cut and relevant variables in arrays for later use
     def storeCut(self):
-        if self.pushc == True:
-            self.cutid  += 1
+        if self.pushc == True and self.cancopy == True:
+            if self.cutid <= len(self.unique):
+                self.cutid  += 1
         self.allcuts      += [self.tempcut]
         self.cutids       += [self.cutid]
         self.globalid     += 1
-        if self.newcut == True or self.pushc == True:
+        if self.newcut == True or (self.pushc == True and self.cancopy):
             self.unique   += [deepcopy(self.tempcut)]
             self.uniqueid += [self.cutid]
         self.pushc         = False
         self.newcut        = False
+        if self.pushc == True and self.cancopy == True:
+            self.newcut = True
         # deletes last added pattern
     def killCut(self):
         if self.globalid > 0:   
@@ -320,6 +325,8 @@ class DrumMachine:
         self.editing = pat
         return 1
     def editPattern(self, what):
+        if what == "":
+            return
         if what == "bass":
             if self.overwrite == True:
                 self.edpad.bassdrumlayer   = None
@@ -370,6 +377,7 @@ def nextp():
     drummachine.writeMidiMem()
     drummachine.playDemo()
     canreplay = 1
+    drummachine.cancopy = False
 def load4edit(pat):
     global canreplay
     if (len(drummachine.unique) > 0):
@@ -390,6 +398,7 @@ def edit(what, pat):
     drummachine.writeMidiMem()
     drummachine.playDemo()
     canreplay = 1
+    drummachine.cancopy = True
 def buildfromarray(temp):
     global canreplay
     if canreplay:
@@ -404,16 +413,19 @@ def buildfromarray(temp):
         canreplay = 1
     else:
         drummachine.freeMidiMem()
+    drummachine.cancopy = False
 def delete():
     if (len(drummachine.cutids) > 0):
         drummachine.killCut()
         putids()
+        drummachine.cancopy = False
 def replay():
     global canreplay
     if (canreplay):
         drummachine.playDemo()
     else:
         print("Nothing to replay")
+        
 def push():
     global canreplay
     if canreplay and drummachine.tempcut != None:
@@ -424,8 +436,10 @@ def push():
         print("Nothing to push")
 
 def pushcopy():
-    drummachine.pushc = True
-    push()
+    if len(drummachine.unique) > 0 and drummachine.cancopy == True:
+        drummachine.pushc = True
+        push()
+        drummachine.cancopy = False
     
 def build():
     updaterang()
@@ -457,7 +471,7 @@ tkmaster.resizable(0,0)
 rangtxt = StringVar()
 rangtxt.set(drummachine.ntoUse())
 rang = Label(tkmaster, bg="#2c2e2c", fg="#FFFFFF", textvariable=rangtxt)
-rang.place(x=610, y=130)
+rang.place(x=610, y=160)
 
 def updaterang():
     rangtxt.set(drummachine.ntoUse())
@@ -473,7 +487,7 @@ overwrite = IntVar()
 overwrite.set(1)
 
 overw = Checkbutton(tkmaster,bg="#2c2e2c", fg="#FF0000", text="Overwrite", variable=overwrite, command=getoverw)
-overw.place(x=525, y=130)
+overw.place(x=525, y=160)
 
 dpatbut = Button(tkmaster,bg="#2c2e2c", fg="#FFFFFF", width=11, text="Randomize", command=nextp)
 dpatbut.place(x=0,y=0)
@@ -571,6 +585,11 @@ def cym4edit():
     if p != -1:
         edit("cym", editpat.get())
 
+def load4copy():
+    p = isvalpat()
+    if p != -1:
+        edit("", editpat.get())
+
 bss = Button(tkmaster, bg="#2c2e2c", fg="#FFFFFF", text="Bass", width=14, command=bass4edit)
 bss.place(x=531, y= 25)
 
@@ -582,6 +601,9 @@ tms.place(x=531, y= 75)
 
 cymsk = Button(tkmaster, bg="#2c2e2c", fg="#FFFFFF", text="Cymbals", width=14, command=cym4edit)
 cymsk.place(x=531, y= 100)
+
+cymsk1 = Button(tkmaster, bg="#2c2e2c", fg="#FFFFFF", text="Play / Copy Enable", width=14, command=load4copy)
+cymsk1.place(x=531, y= 125)
 
 # the one and only...
 mainloop()
