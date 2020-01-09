@@ -186,11 +186,7 @@ class DrumMachine:
                 volu = randrange(100 + addtovol, 128)
                 drumcut.ntimesbeat  += [n * beat]
                 drumcut.volumes     += [volu]
-                if instr == Toms:
-                    drumcut.whathit     += [instr[int(mod4hit) % 4]]
-                    mod4hit -= dec4hit
-                else:
-                    drumcut.whathit     += [instr[randrange(0, len(instr))]]
+                drumcut.whathit     += [instr[randrange(0, len(instr))]]
             c += beat
             if c >= 1:
                 c = 0
