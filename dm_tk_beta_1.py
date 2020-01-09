@@ -91,8 +91,6 @@ class CompleteCut:
         self.bassdrumlayer   = None 
         self.snaredrumlayer  = None
         self.tomsdrumlayer   = None
-##        self.HiHatdrumlayer  = None
-##        self.HiHathdrumlayer = None
         self.cymbaldrumlayer = None
 
 # main DrumMachine class of Full Metal Drum Kit
@@ -120,7 +118,7 @@ class DrumMachine:
     # id for pattern being editing
     editing   = None
     # when editing drum layers
-    # we can overwrite or add to the layers
+    # we can overwrite or add to the layers (discontinued)
     overwrite = True
     # push copy
     pushc     = False
@@ -229,13 +227,10 @@ class DrumMachine:
         self.CreateDrumLayer(ccobj.bassdrumlayer,   offset)
         self.CreateDrumLayer(ccobj.snaredrumlayer,  offset)
         self.CreateDrumLayer(ccobj.tomsdrumlayer,   offset)
-##        self.CreateDrumLayer(ccobj.HiHatdrumlayer,  offset)
-##        self.CreateDrumLayer(ccobj.HiHathdrumlayer, offset)
         self.CreateDrumLayer(ccobj.cymbaldrumlayer, offset)
         # calls above function but for consecutive drum patterns
     def buildAllCuts(self):
         if len(self.allcuts) < 1:
-            print("here")
             return 
         for n, cut in enumerate(self.allcuts):
             self.tempcut = cut
@@ -263,8 +258,6 @@ class DrumMachine:
             self.globalid -= 1
             del self.allcuts[self.globalid-1]
             del self.cutids[self.globalid-1]
-        else:
-            print("Can not delete")
         # saves pattern to disk
     def save(self):
         if (self.allcuts == []):
@@ -291,16 +284,13 @@ class DrumMachine:
         # build pattern from array entered by user
     def buildFromArray(self, temp):
         if len(self.unique) < 1:
-            print("Nothing to build")
             return -1
         try:
             temp = [int(x) for x in temp.split(',')]
         except:
-            print("Use did not type prop")
             return -1
         for i in temp:
             if i not in self.uniqueid:
-                print("invalid")
                 return -1
         self.allcuts = []
         self.cutids  = []
@@ -341,8 +331,6 @@ class DrumMachine:
                 1, hitprob(), pulseit(7)-1, 1)
         elif what == "cym":
             if self.overwrite == True:
-##                self.edpad.HiHatdrumlayer  = None
-##                self.edpad.HiHathdrumlayer = None
                 self.edpad.cymbaldrumlayer = None
             for pc in range(8):
                 if randrange(0,5) == 1:
@@ -378,8 +366,6 @@ def load4edit(pat):
     global canreplay
     if (len(drummachine.unique) > 0):
         suc = drummachine.loadForEdit(pat)
-        if (suc):
-            print("pattern loaded")
 def edit(what, pat):
     load4edit(pat)
     global canreplay
@@ -419,8 +405,6 @@ def replay():
     global canreplay
     if (canreplay):
         drummachine.playDemo()
-    else:
-        print("Nothing to replay")
         
 def push():
     global canreplay
@@ -428,8 +412,6 @@ def push():
         drummachine.storeCut()
         putids()
         updaterang()
-    else:
-        print("Nothing to push")
 
 def pushcopy():
     if len(drummachine.unique) > 0 and drummachine.cancopy == True:
@@ -472,18 +454,18 @@ rang.place(x=610, y=160)
 def updaterang():
     rangtxt.set(drummachine.ntoUse())
 
-def getoverw():
-    if overwrite.get() == 1:
-        drummachine.overwrite = True
-    elif overwrite.get() == 0:
-        drummachine.overwrite = False
-    print(overwrite.get())
-
-overwrite = IntVar()
-overwrite.set(1)
-
-overw = Checkbutton(tkmaster,bg="#2c2e2c", fg="#FF0000", text="Overwrite", variable=overwrite, command=getoverw)
-overw.place(x=525, y=160)
+##def getoverw():
+##    if overwrite.get() == 1:
+##        drummachine.overwrite = True
+##    elif overwrite.get() == 0:
+##        drummachine.overwrite = False
+##    print(overwrite.get())
+##
+##overwrite = IntVar()
+##overwrite.set(1)
+##
+##overw = Checkbutton(tkmaster,bg="#2c2e2c", fg="#FF00FF", text="Overwrite", variable=overwrite, command=getoverw)
+##overw.place(x=525, y=160)
 
 dpatbut = Button(tkmaster,bg="#2c2e2c", fg="#FFFFFF", width=11, text="Randomize", command=nextp)
 dpatbut.place(x=0,y=0)
