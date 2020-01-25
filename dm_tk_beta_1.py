@@ -1,4 +1,5 @@
-
+# Full Metal Drum Kit
+# 623
 from copy import copy, deepcopy
 from tkinter import *
 import tkinter.scrolledtext as scrolledtext
